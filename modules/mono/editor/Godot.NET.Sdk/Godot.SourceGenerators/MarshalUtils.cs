@@ -208,6 +208,9 @@ namespace Godot.SourceGenerators
                         if (type.SimpleDerivesFrom(typeCache.GodotObjectType))
                             return MarshalType.GodotObjectOrDerived;
 
+                        if (type is ITypeParameterSymbol typeParam && typeParam.HasGodotMustBeVariantAttribute())
+                            return MarshalType.GenericType;
+
                         if (type.ContainingAssembly?.Name == "GodotSharp")
                         {
                             switch (type.ContainingNamespace?.Name)
@@ -221,18 +224,24 @@ namespace Godot.SourceGenerators
                                     };
                                 case "Collections"
                                     when type.ContainingNamespace?.FullQualifiedNameOmitGlobal() == "Godot.Collections":
+                                {
+                                    INamedTypeSymbol namedType = (INamedTypeSymbol)type;
+                                    bool isRuntimeGeneric = namedType.TypeArguments.Any(t => t is ITypeParameterSymbol);
                                     return type switch
                                     {
-                                        { Name: "Dictionary" } =>
-                                            type is INamedTypeSymbol { IsGenericType: false } ?
+                                        { Name: "Dictionary" } => !namedType.IsGenericType ?
                                                 MarshalType.GodotDictionary :
-                                                MarshalType.GodotGenericDictionary,
-                                        { Name: "Array" } =>
-                                            type is INamedTypeSymbol { IsGenericType: false } ?
+                                                !isRuntimeGeneric ?
+                                                    MarshalType.GodotGenericDictionary :
+                                                    MarshalType.GenericGodotGenericDictionary,
+                                        { Name: "Array" } => !namedType.IsGenericType ?
                                                 MarshalType.GodotArray :
-                                                MarshalType.GodotGenericArray,
+                                                !isRuntimeGeneric ?
+                                                    MarshalType.GodotGenericArray :
+                                                    MarshalType.GenericGodotGenericArray,
                                         _ => null
                                     };
+                                }
                             }
                         }
                     }
