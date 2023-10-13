@@ -373,7 +373,7 @@ namespace Godot.SourceGenerators
         private static void AppendPropertyInfo(StringBuilder source, PropertyInfo propertyInfo)
         {
             source.Append("new(type: (global::Godot.Variant.Type)")
-                .Append((int)propertyInfo.Type)
+                .Append((int)propertyInfo.VariantType)
                 .Append(", name: \"")
                 .Append(propertyInfo.Name)
                 .Append("\", hint: (global::Godot.PropertyHint)")
@@ -407,7 +407,7 @@ namespace Godot.SourceGenerators
             }
             else
             {
-                returnVal = new PropertyInfo(VariantType.Nil, string.Empty, PropertyHint.None,
+                returnVal = new PropertyInfo(VariantType.Nil, null, string.Empty, PropertyHint.None,
                     hintString: null, PropertyUsageFlags.Default, exported: false);
             }
 
@@ -450,7 +450,7 @@ namespace Godot.SourceGenerators
                 className = namedTypeSymbol.GetGodotScriptNativeClassName();
             }
 
-            return new PropertyInfo(memberVariantType, name,
+            return new PropertyInfo(memberVariantType, typeSymbol, name,
                 PropertyHint.None, string.Empty, propUsage, className, exported: false);
         }
 
