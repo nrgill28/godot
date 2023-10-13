@@ -21,10 +21,13 @@ namespace Godot.SourceGenerators
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterSyntaxNodeAction(AnalyzeNode, SyntaxKind.TypeArgumentList);
+            context.RegisterSyntaxNodeAction(AnalyzeTypeArgumentList, SyntaxKind.TypeArgumentList);
+            context.RegisterSyntaxNodeAction(AnalyzeExportedProperties, SyntaxKind.FieldDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeExportedProperties, SyntaxKind.PropertyDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeSignals, SyntaxKind.DelegateDeclaration);
         }
 
-        private void AnalyzeNode(SyntaxNodeAnalysisContext context)
+        private void AnalyzeTypeArgumentList(SyntaxNodeAnalysisContext context)
         {
             // Ignore syntax inside comments
             if (IsInsideDocumentation(context.Node))
@@ -60,7 +63,7 @@ namespace Godot.SourceGenerators
 
                 if (typeSymbol is ITypeParameterSymbol typeParamSymbol)
                 {
-                    if (!typeParamSymbol.GetAttributes().Any(a => a.AttributeClass?.IsGodotMustBeVariantAttribute() ?? false))
+                    if (!typeParamSymbol.HasGodotMustBeVariantAttribute())
                     {
                         Common.ReportGenericTypeParameterMustBeVariantAnnotated(context, typeSyntax, typeSymbol);
                     }
@@ -73,6 +76,52 @@ namespace Godot.SourceGenerators
                 {
                     Common.ReportGenericTypeArgumentMustBeVariant(context, typeSyntax, typeSymbol);
                     continue;
+                }
+            }
+        }
+
+        private void AnalyzeExportedProperties(SyntaxNodeAnalysisContext context)
+        {
+            // If someone uses a generic type in an exported property, it needs to be [MustBeVariant]
+
+            SemanticModel sm = context.SemanticModel;
+            var member = (MemberDeclarationSyntax)context.Node;
+
+            if (!member.GetAllAttributes().Any(a => a.GetTypeSymbol(sm).IsGodotExportAttribute())) return;
+
+            TypeSyntax typeSyntax = member switch
+            {
+                FieldDeclarationSyntax field => field.Declaration.Type,
+                PropertyDeclarationSyntax property => property.Type
+            };
+
+            ITypeSymbol typeSymbol = (ITypeSymbol) sm.GetSymbolInfo(typeSyntax).Symbol!;
+
+            if (typeSymbol is ITypeParameterSymbol typeParam && !typeParam.HasGodotMustBeVariantAttribute())
+            {
+                Common.ReportGenericTypeParameterMustBeVariantAnnotated(context, typeSyntax, typeSymbol);
+            }
+        }
+
+        private void AnalyzeSignals(SyntaxNodeAnalysisContext context)
+        {
+            // If someone uses a generic type in a signal, it needs to be [MustBeVariant]
+
+            SemanticModel sm = context.SemanticModel;
+            var delegateSyntax = (DelegateDeclarationSyntax)context.Node;
+
+            if (!delegateSyntax.GetAllAttributes().Any(a => a.GetTypeSymbol(sm).IsGodotSignalAttribute()))
+                return;
+
+            foreach (var param in delegateSyntax.ParameterList.Parameters)
+            {
+                if (param.Type == null) continue;
+
+                var paramType = (ITypeSymbol) sm.GetSymbolInfo(param.Type).Symbol!;
+
+                if (paramType is ITypeParameterSymbol typeParam && !typeParam.HasGodotMustBeVariantAttribute())
+                {
+                    Common.ReportGenericTypeParameterMustBeVariantAnnotated(context, param.Type, paramType);
                 }
             }
         }

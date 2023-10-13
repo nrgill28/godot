@@ -238,6 +238,9 @@ namespace Godot.SourceGenerators
         public static bool IsGodotMustBeVariantAttribute(this INamedTypeSymbol symbol)
             => symbol.FullQualifiedNameOmitGlobal() == GodotClasses.MustBeVariantAttr;
 
+        public static bool HasGodotMustBeVariantAttribute(this ITypeParameterSymbol symbol)
+            => symbol.GetAttributes().Any(a => a.AttributeClass?.IsGodotMustBeVariantAttribute() ?? false);
+
         public static bool IsGodotClassNameAttribute(this INamedTypeSymbol symbol)
             => symbol.FullQualifiedNameOmitGlobal() == GodotClasses.GodotClassNameAttr;
 
@@ -336,5 +339,11 @@ namespace Godot.SourceGenerators
         public static int StartLine(this Location location)
             => location.SourceTree?.GetLineSpan(location.SourceSpan).StartLinePosition.Line
                ?? location.GetLineSpan().StartLinePosition.Line;
+
+        public static IEnumerable<AttributeSyntax> GetAllAttributes(this MemberDeclarationSyntax member)
+            => member.AttributeLists.SelectMany(al => al.Attributes);
+
+        public static INamedTypeSymbol GetTypeSymbol(this AttributeSyntax attribute, SemanticModel sm)
+            => (sm.GetSymbolInfo(attribute).Symbol as IMethodSymbol)!.ContainingType!;
     }
 }
