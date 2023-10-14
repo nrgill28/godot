@@ -380,31 +380,8 @@ namespace Godot.SourceGenerators
         private static void AppendPropertyInfo(StringBuilder source, PropertyInfo propertyInfo)
         {
             source.Append("        properties.Add(");
-
-            if (propertyInfo.VariantType.HasValue)
-            {
-                source.Append("new(type: (global::Godot.Variant.Type)")
-                    .Append((int)propertyInfo.VariantType)
-                    .Append(", ");
-            }
-            else if (propertyInfo.PropertyType != null)
-            {
-                source.Append("global::Godot.Bridge.GenericUtils.PropertyInfoFromGenericType<")
-                    .Append(propertyInfo.PropertyType!.FullQualifiedNameIncludeGlobal())
-                    .Append(">(");
-            }
-
-            source.Append("name: PropertyName.")
-                .Append(propertyInfo.Name)
-                .Append(", hint: (global::Godot.PropertyHint)")
-                .Append((int)propertyInfo.Hint)
-                .Append(", hintString: \"")
-                .Append(propertyInfo.HintString)
-                .Append("\", usage: (global::Godot.PropertyUsageFlags)")
-                .Append((int)propertyInfo.Usage)
-                .Append(", exported: ")
-                .Append(propertyInfo.Exported ? "true" : "false")
-                .Append("));\n");
+            source.AppendPropertyInfo(propertyInfo, "PropertyName.{0}");
+            source.Append(");\n");
         }
 
         private static IEnumerable<PropertyInfo> DetermineGroupingPropertyInfo(ISymbol memberSymbol)

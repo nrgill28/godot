@@ -345,5 +345,41 @@ namespace Godot.SourceGenerators
 
         public static INamedTypeSymbol GetTypeSymbol(this AttributeSyntax attribute, SemanticModel sm)
             => (sm.GetSymbolInfo(attribute).Symbol as IMethodSymbol)!.ContainingType!;
+
+        public static void AppendPropertyInfo(this StringBuilder source, PropertyInfo propertyInfo, string nameFormat)
+        {
+            if (propertyInfo.VariantType.HasValue)
+            {
+                source.Append("new(type: (global::Godot.Variant.Type)")
+                    .Append((int)propertyInfo.VariantType)
+                    .Append(", ");
+            }
+            else if (propertyInfo.PropertyType != null)
+            {
+                source.Append("global::Godot.Bridge.GenericUtils.PropertyInfoFromGenericType<")
+                    .Append(propertyInfo.PropertyType!.FullQualifiedNameIncludeGlobal())
+                    .Append(">(");
+            }
+
+            source.Append("name: ")
+                .Append(string.Format(nameFormat, propertyInfo.Name))
+                .Append(", hint: (global::Godot.PropertyHint)")
+                .Append((int)propertyInfo.Hint)
+                .Append(", hintString: \"")
+                .Append(propertyInfo.HintString)
+                .Append("\", usage: (global::Godot.PropertyUsageFlags)")
+                .Append((int)propertyInfo.Usage)
+                .Append(", exported: ")
+                .Append(propertyInfo.Exported ? "true" : "false");
+
+            if (propertyInfo.ClassName != null)
+            {
+                source.Append(", className: new global::Godot.StringName(\"")
+                    .Append(propertyInfo.ClassName)
+                    .Append("\")");
+            }
+
+            source.Append(")");
+        }
     }
 }

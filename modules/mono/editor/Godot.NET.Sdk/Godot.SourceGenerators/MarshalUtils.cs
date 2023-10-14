@@ -233,12 +233,12 @@ namespace Godot.SourceGenerators
                                                 MarshalType.GodotDictionary :
                                                 !isRuntimeGeneric ?
                                                     MarshalType.GodotGenericDictionary :
-                                                    MarshalType.GenericGodotGenericDictionary,
+                                                    MarshalType.GenericType,
                                         { Name: "Array" } => !namedType.IsGenericType ?
                                                 MarshalType.GodotArray :
                                                 !isRuntimeGeneric ?
                                                     MarshalType.GodotGenericArray :
-                                                    MarshalType.GenericGodotGenericArray,
+                                                    MarshalType.GenericType,
                                         _ => null
                                     };
                                 }

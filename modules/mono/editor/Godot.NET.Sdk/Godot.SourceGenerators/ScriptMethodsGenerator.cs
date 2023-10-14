@@ -292,7 +292,7 @@ namespace Godot.SourceGenerators
                 .Append(methodInfo.Name)
                 .Append(", returnVal: ");
 
-            AppendPropertyInfo(source, methodInfo.ReturnVal);
+            source.AppendPropertyInfo(methodInfo.ReturnVal, "\"{0}\"");
 
             source.Append(", flags: (global::Godot.MethodFlags)")
                 .Append((int)methodInfo.Flags)
@@ -304,7 +304,7 @@ namespace Godot.SourceGenerators
 
                 foreach (var param in methodInfo.Arguments)
                 {
-                    AppendPropertyInfo(source, param);
+                    source.AppendPropertyInfo(param, "\"{0}\"");
 
                     // C# allows colon after the last element
                     source.Append(", ");
@@ -318,29 +318,6 @@ namespace Godot.SourceGenerators
             }
 
             source.Append(", defaultArguments: null));\n");
-        }
-
-        private static void AppendPropertyInfo(StringBuilder source, PropertyInfo propertyInfo)
-        {
-            source.Append("new(type: (global::Godot.Variant.Type)")
-                .Append((int)propertyInfo.VariantType)
-                .Append(", name: \"")
-                .Append(propertyInfo.Name)
-                .Append("\", hint: (global::Godot.PropertyHint)")
-                .Append((int)propertyInfo.Hint)
-                .Append(", hintString: \"")
-                .Append(propertyInfo.HintString)
-                .Append("\", usage: (global::Godot.PropertyUsageFlags)")
-                .Append((int)propertyInfo.Usage)
-                .Append(", exported: ")
-                .Append(propertyInfo.Exported ? "true" : "false");
-            if (propertyInfo.ClassName != null)
-            {
-                source.Append(", className: new global::Godot.StringName(\"")
-                    .Append(propertyInfo.ClassName)
-                    .Append("\")");
-            }
-            source.Append(")");
         }
 
         private static MethodInfo DetermineMethodInfo(GodotMethodData method)

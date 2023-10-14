@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using Godot.NativeInterop;
@@ -17,15 +16,14 @@ public class GenericUtils
         string hintString, PropertyUsageFlags usage, bool exported)
     {
         Variant.Type variantType = VariantUtils.TypeOf<T>();
-        if (Engine.IsEditorHint())
-        {
-            GetPropertyHintString(typeof(T), variantType, hint, hintString, out hint, out hintString);
-        }
-        else
+
+        // If we're not in an editor build, don't bother with the hint string.
+        // It's likely not AOT safe and we don't need it anyway.
+        if (!OS.HasFeature("editor"))
         {
             hint = PropertyHint.None;
             hintString = "";
-        }
+        }else GetPropertyHintString(typeof(T), variantType, hint, hintString, out hint, out hintString);
 
         return new PropertyInfo(variantType, name, hint, hintString, usage, exported);
     }
