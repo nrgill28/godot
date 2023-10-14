@@ -90,6 +90,15 @@ namespace Godot.SourceGenerators
                 location?.SourceTree?.FilePath));
         }
 
+        public static readonly DiagnosticDescriptor ExportedMemberTypeNotSupportedRule =
+            new DiagnosticDescriptor(id: "GD0102",
+                title: "The type of the exported member is not supported",
+                messageFormat: "The type of the exported member is not supported: {0}",
+                category: "Usage",
+                DiagnosticSeverity.Error,
+                isEnabledByDefault: true,
+                "The type of the exported member is not supported. Use a supported type or remove the '[Export]' attribute.");
+
         public static void ReportExportedMemberTypeNotSupported(
             GeneratorExecutionContext context,
             ISymbol exportedMemberSymbol
@@ -335,12 +344,12 @@ namespace Godot.SourceGenerators
 
         public static void ReportGenericTypeParameterMustBeVariantAnnotated(
             SyntaxNodeAnalysisContext context,
-            SyntaxNode typeArgumentSyntax,
-            ISymbol typeArgumentSymbol)
+            ITypeParameterSymbol typeParameterSymbol)
         {
-            string message = "The generic type parameter must be annotated with the MustBeVariant attribute";
-
+            string message = $"The generic type parameter '{typeParameterSymbol.Name}' must be annotated with the MustBeVariant attribute";
             string description = $"{message}. Add the MustBeVariant attribute to the generic type parameter.";
+
+            Location typeParamLocation = typeParameterSymbol.Locations.First(l => l.SourceTree != null);
 
             context.ReportDiagnostic(Diagnostic.Create(
                 new DiagnosticDescriptor(id: "GD0302",
@@ -350,8 +359,8 @@ namespace Godot.SourceGenerators
                     DiagnosticSeverity.Error,
                     isEnabledByDefault: true,
                     description),
-                typeArgumentSyntax.GetLocation(),
-                typeArgumentSyntax.SyntaxTree.FilePath));
+                typeParamLocation,
+                typeParamLocation.SourceTree!.FilePath));
         }
 
         public static readonly DiagnosticDescriptor TypeArgumentParentSymbolUnhandledRule =
@@ -383,6 +392,31 @@ namespace Godot.SourceGenerators
                     description),
                 typeArgumentSyntax.GetLocation(),
                 typeArgumentSyntax.SyntaxTree.FilePath));
+        }
+
+        public static readonly DiagnosticDescriptor InvalidMustBeGenericTypeParameterUsageRule =
+            new DiagnosticDescriptor(id: "GD0304",
+                title: "Usage of a MustBeVariant annotated type parameter results in a non Variant compatible type",
+                messageFormat: "The usage of {0} in {1} when {2} is {3} results in a non Variant compatible type. Consider using a Godot.Collections.Array instead of a C# array.",
+                category: "Usage",
+                DiagnosticSeverity.Error,
+                isEnabledByDefault: true);
+
+        public static void ReportInvalidMustBeGenericTypeParameterUsage(
+            SyntaxNodeAnalysisContext context, ITypeParameterSymbol typeParameterSymbol, ITypeSymbol typeArgumentSymbol,
+            ITypeSymbol genericTypeSymbol, ISymbol source, SyntaxNode location)
+        {
+            string typeArgumentName = typeArgumentSymbol is IArrayTypeSymbol
+                ? "any array type"
+                : typeArgumentSymbol.ToDisplayString();
+
+            string sourceName = source.ToMinimalDisplayString(context.SemanticModel, location.SpanStart,
+                SymbolDisplayFormat.CSharpShortErrorMessageFormat);
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                InvalidMustBeGenericTypeParameterUsageRule, location.GetLocation(),
+                genericTypeSymbol, sourceName, typeParameterSymbol, typeArgumentName
+            ));
         }
 
         public static readonly DiagnosticDescriptor GlobalClassMustDeriveFromGodotObjectRule =

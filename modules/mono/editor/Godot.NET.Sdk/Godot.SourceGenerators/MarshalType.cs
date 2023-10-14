@@ -72,5 +72,6 @@ namespace Godot.SourceGenerators
 
         // For things using generic type parameters
         GenericType,
+        GenericSystemArrayType,
     }
 }

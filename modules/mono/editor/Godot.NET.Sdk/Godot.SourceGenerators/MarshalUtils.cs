@@ -181,6 +181,9 @@ namespace Godot.SourceGenerators
                         if (elementType.SimpleDerivesFrom(typeCache.GodotObjectType))
                             return MarshalType.GodotObjectOrDerivedArray;
 
+                        if (elementType is ITypeParameterSymbol typeParam && typeParam.HasGodotMustBeVariantAttribute())
+                            return MarshalType.GenericSystemArrayType;
+
                         if (elementType.ContainingAssembly?.Name == "GodotSharp" &&
                             elementType.ContainingNamespace?.Name == "Godot")
                         {

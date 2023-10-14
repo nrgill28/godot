@@ -417,7 +417,7 @@ namespace Godot.SourceGenerators
             var propUsage = PropertyUsageFlags.Default;
             string? className = null;
 
-            if (marshalType == MarshalType.GenericType)
+            if (marshalType == MarshalType.GenericType || marshalType == MarshalType.GenericSystemArrayType)
             {
                 return new PropertyInfo(null, typeSymbol, name,
                     PropertyHint.None, string.Empty, propUsage, className, exported: false);

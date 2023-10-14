@@ -232,8 +232,17 @@ namespace Godot.SourceGenerators
         public static bool IsGodotExportAttribute(this INamedTypeSymbol symbol)
             => symbol.FullQualifiedNameOmitGlobal() == GodotClasses.ExportAttr;
 
+        public static bool HasGodotExportAttribute(this IFieldSymbol symbol)
+            => symbol.GetAttributes().Any(a => a.AttributeClass?.IsGodotExportAttribute() ?? false);
+
+        public static bool HasGodotExportAttribute(this IPropertySymbol symbol)
+            => symbol.GetAttributes().Any(a => a.AttributeClass?.IsGodotExportAttribute() ?? false);
+
         public static bool IsGodotSignalAttribute(this INamedTypeSymbol symbol)
             => symbol.FullQualifiedNameOmitGlobal() == GodotClasses.SignalAttr;
+
+        public static bool HasGodotSignalAttribute(this INamedTypeSymbol symbol)
+            => symbol.GetAttributes().Any(a => a.AttributeClass?.IsGodotSignalAttribute() ?? false);
 
         public static bool IsGodotMustBeVariantAttribute(this INamedTypeSymbol symbol)
             => symbol.FullQualifiedNameOmitGlobal() == GodotClasses.MustBeVariantAttr;
