@@ -124,6 +124,12 @@ namespace Godot.SourceGenerators
                     Common.ReportGenericTypeParameterMustBeVariantAnnotated(context, param.Type, paramType);
                 }
             }
+
+            var retType = (ITypeSymbol)sm.GetSymbolInfo(delegateSyntax.ReturnType).Symbol!;
+            if (retType is ITypeParameterSymbol retTypeParam && !retTypeParam.HasGodotMustBeVariantAttribute())
+            {
+                Common.ReportGenericTypeParameterMustBeVariantAnnotated(context, delegateSyntax.ReturnType, retType);
+            }
         }
 
         /// <summary>

@@ -493,6 +493,8 @@ namespace Godot.SourceGenerators
                 hint, hintString, propUsage, exported: true);
         }
 
+        // If you update anything in here, check if the same thing also
+        // needs to be updated in Godot.Bridge.GenericUtils.GetPropertyHintString
         private static bool TryGetMemberExportHint(
             MarshalUtils.TypeCache typeCache,
             ITypeSymbol type, AttributeData exportAttr,

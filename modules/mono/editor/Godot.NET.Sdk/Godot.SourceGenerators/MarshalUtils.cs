@@ -226,17 +226,17 @@ namespace Godot.SourceGenerators
                                     when type.ContainingNamespace?.FullQualifiedNameOmitGlobal() == "Godot.Collections":
                                 {
                                     INamedTypeSymbol namedType = (INamedTypeSymbol)type;
-                                    bool isRuntimeGeneric = namedType.TypeArguments.Any(t => t is ITypeParameterSymbol);
+                                    bool isGenericTypeGeneric = namedType.TypeArguments.Any(t => t is ITypeParameterSymbol);
                                     return type switch
                                     {
                                         { Name: "Dictionary" } => !namedType.IsGenericType ?
                                                 MarshalType.GodotDictionary :
-                                                !isRuntimeGeneric ?
+                                                !isGenericTypeGeneric ?
                                                     MarshalType.GodotGenericDictionary :
                                                     MarshalType.GenericType,
                                         { Name: "Array" } => !namedType.IsGenericType ?
                                                 MarshalType.GodotArray :
-                                                !isRuntimeGeneric ?
+                                                !isGenericTypeGeneric ?
                                                     MarshalType.GodotGenericArray :
                                                     MarshalType.GenericType,
                                         _ => null

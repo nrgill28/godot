@@ -16,3 +16,11 @@ public partial class GenericExports<[MustBeVariant] T> : GodotObject
         return arg;
     }
 }
+
+public partial class CompleteTypeVector : GenericExports<Vector2>
+{
+}
+
+public partial class CompleteTypeResource : GenericExports<Resource>
+{
+}

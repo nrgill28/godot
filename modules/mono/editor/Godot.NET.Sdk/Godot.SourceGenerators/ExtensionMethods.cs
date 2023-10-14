@@ -354,7 +354,7 @@ namespace Godot.SourceGenerators
                     .Append((int)propertyInfo.VariantType)
                     .Append(", ");
             }
-            else if (propertyInfo.PropertyType != null)
+            else
             {
                 source.Append("global::Godot.Bridge.GenericUtils.PropertyInfoFromGenericType<")
                     .Append(propertyInfo.PropertyType!.FullQualifiedNameIncludeGlobal())
