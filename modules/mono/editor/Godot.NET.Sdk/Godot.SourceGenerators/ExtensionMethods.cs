@@ -157,7 +157,7 @@ namespace Godot.SourceGenerators
 
         public static string NameWithTypeParameters(this INamedTypeSymbol symbol)
         {
-            return symbol.IsGenericType ?
+            return symbol.TypeParameters.Length > 0 ?
                 string.Concat(symbol.Name, "<", string.Join(", ", symbol.TypeParameters), ">") :
                 symbol.Name;
         }
@@ -247,8 +247,14 @@ namespace Godot.SourceGenerators
         public static bool IsGodotMustBeVariantAttribute(this INamedTypeSymbol symbol)
             => symbol.FullQualifiedNameOmitGlobal() == GodotClasses.MustBeVariantAttr;
 
-        public static bool HasGodotMustBeVariantAttribute(this ITypeParameterSymbol symbol)
-            => symbol.GetAttributes().Any(a => a.AttributeClass?.IsGodotMustBeVariantAttribute() ?? false);
+        public static bool IsVariantCompatible(this ITypeParameterSymbol symbol)
+        {
+            // The type parameter has the MustBeVariant attribute, or it is constrained to a GodotObject derived type
+            return symbol.GetAttributes()
+                       .Any(a => a.AttributeClass?.IsGodotMustBeVariantAttribute() ?? false) ||
+                   symbol.ConstraintTypes.OfType<INamedTypeSymbol>()
+                       .Any(t => t.InheritsFrom("GodotSharp", GodotClasses.GodotObject));
+        }
 
         public static bool IsGodotClassNameAttribute(this INamedTypeSymbol symbol)
             => symbol.FullQualifiedNameOmitGlobal() == GodotClasses.GodotClassNameAttr;

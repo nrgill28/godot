@@ -51,3 +51,10 @@ public partial class GenericArrayExportInt : GenericArrayExport<int>
 // public partial class GenericArrayExportPlane : GenericArrayExport<Plane>
 // {
 // }
+
+// Doesn't require the [MustBeVariant] attribute because T is constrained to GodotObject already.
+public partial class InferredVariantCompatible<T> : Resource
+    where T : GodotObject
+{
+    [Export] public T Exported;
+}

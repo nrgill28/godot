@@ -181,7 +181,7 @@ namespace Godot.SourceGenerators
                         if (elementType.SimpleDerivesFrom(typeCache.GodotObjectType))
                             return MarshalType.GodotObjectOrDerivedArray;
 
-                        if (elementType is ITypeParameterSymbol typeParam && typeParam.HasGodotMustBeVariantAttribute())
+                        if (elementType is ITypeParameterSymbol typeParam && typeParam.IsVariantCompatible())
                             return MarshalType.GenericSystemArrayType;
 
                         if (elementType.ContainingAssembly?.Name == "GodotSharp" &&
@@ -211,7 +211,7 @@ namespace Godot.SourceGenerators
                         if (type.SimpleDerivesFrom(typeCache.GodotObjectType))
                             return MarshalType.GodotObjectOrDerived;
 
-                        if (type is ITypeParameterSymbol typeParam && typeParam.HasGodotMustBeVariantAttribute())
+                        if (type is ITypeParameterSymbol typeParam && typeParam.IsVariantCompatible())
                             return MarshalType.GenericType;
 
                         if (type.ContainingAssembly?.Name == "GodotSharp")

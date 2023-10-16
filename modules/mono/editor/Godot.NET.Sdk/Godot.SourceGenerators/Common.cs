@@ -90,15 +90,6 @@ namespace Godot.SourceGenerators
                 location?.SourceTree?.FilePath));
         }
 
-        public static readonly DiagnosticDescriptor ExportedMemberTypeNotSupportedRule =
-            new DiagnosticDescriptor(id: "GD0102",
-                title: "The type of the exported member is not supported",
-                messageFormat: "The type of the exported member is not supported: {0}",
-                category: "Usage",
-                DiagnosticSeverity.Error,
-                isEnabledByDefault: true,
-                "The type of the exported member is not supported. Use a supported type or remove the '[Export]' attribute.");
-
         public static void ReportExportedMemberTypeNotSupported(
             GeneratorExecutionContext context,
             ISymbol exportedMemberSymbol
@@ -346,7 +337,7 @@ namespace Godot.SourceGenerators
             SyntaxNodeAnalysisContext context,
             ITypeParameterSymbol typeParameterSymbol)
         {
-            string message = $"The generic type parameter '{typeParameterSymbol.Name}' must be annotated with the MustBeVariant attribute";
+            string message = $"The generic type parameter '{typeParameterSymbol.Name}' must be annotated with the MustBeVariant attribute or be constrained to a GodotObject-derived type";
             string description = $"{message}. Add the MustBeVariant attribute to the generic type parameter.";
 
             Location typeParamLocation = typeParameterSymbol.Locations.First(l => l.SourceTree != null);

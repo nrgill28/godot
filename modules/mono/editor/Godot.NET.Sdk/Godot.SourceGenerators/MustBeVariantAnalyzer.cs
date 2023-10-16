@@ -52,7 +52,7 @@ namespace Godot.SourceGenerators
 
             ITypeSymbol typeSymbol = (ITypeSymbol)ModelExtensions.GetSymbolInfo(sm, typeSyntax).Symbol!;
 
-            if (typeSymbol is ITypeParameterSymbol typeParam && !typeParam.HasGodotMustBeVariantAttribute())
+            if (typeSymbol is ITypeParameterSymbol typeParam && !typeParam.IsVariantCompatible())
             {
                 Common.ReportGenericTypeParameterMustBeVariantAnnotated(context, typeParam);
             }
@@ -76,14 +76,14 @@ namespace Godot.SourceGenerators
 
                 var paramType = (ITypeSymbol)ModelExtensions.GetSymbolInfo(sm, param.Type).Symbol!;
 
-                if (paramType is ITypeParameterSymbol typeParam && !typeParam.HasGodotMustBeVariantAttribute())
+                if (paramType is ITypeParameterSymbol typeParam && !typeParam.IsVariantCompatible())
                 {
                     Common.ReportGenericTypeParameterMustBeVariantAnnotated(context, typeParam);
                 }
             }
 
             var retType = (ITypeSymbol)ModelExtensions.GetSymbolInfo(sm, delegateSyntax.ReturnType).Symbol!;
-            if (retType is ITypeParameterSymbol retTypeParam && !retTypeParam.HasGodotMustBeVariantAttribute())
+            if (retType is ITypeParameterSymbol retTypeParam && !retTypeParam.IsVariantCompatible())
             {
                 Common.ReportGenericTypeParameterMustBeVariantAnnotated(context, retTypeParam);
             }
@@ -114,11 +114,11 @@ namespace Godot.SourceGenerators
             for (int i = 0; i < typeParameters.Length; i++)
             {
                 // This type parameter isn't [MustBeVariant] so we don't care
-                if (!typeParameters[i].HasGodotMustBeVariantAttribute()) continue;
+                if (!typeParameters[i].IsVariantCompatible()) continue;
 
                 // Check what the provided type argument is
                 ITypeSymbol argument = typeArguments[i];
-                if (argument is ITypeParameterSymbol typeParam && !typeParam.HasGodotMustBeVariantAttribute())
+                if (argument is ITypeParameterSymbol typeParam && !typeParam.IsVariantCompatible())
                 {
                     // Another type parameter took its place but it isn't also [MustBeVariant]
                     Common.ReportGenericTypeParameterMustBeVariantAnnotated(context, typeParam);
